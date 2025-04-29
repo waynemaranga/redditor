@@ -1,5 +1,6 @@
 """FastAPI server"""
 # ⚠️ Recommended: Use Async PRAW for asynchronous implementation: https://asyncpraw.readthedocs.io/en/stable/
+import io
 from contextlib import asynccontextmanager
 import logging
 from pathlib import Path
@@ -12,7 +13,13 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.templating import _TemplateResponse as TemplateResponse
 
-from redditor.main import create_client, fetch_latest_posts
+import os
+import sys
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+sys.path.append("/app/src")  # If /app/src is your mounted path in Docker
+
+
+from ..main import create_client, fetch_latest_posts
 
 # -- Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
@@ -49,13 +56,22 @@ async def read_root(request: Request) -> TemplateResponse:
     return templates.TemplateResponse("index.html", {"request": request, "posts": []})
 
 @app.post("/fetch_posts/", response_class=HTMLResponse)
-async def fetch_posts(request: Request, subreddit: str = Form(...), n: int = Form(5)) -> TemplateResponse:
-    posts: list[dict[str, str]] = fetch_latest_posts(subreddit_name=subreddit, limit=n)
-    # Retrieve logs
-    # For simplicity, logs are not captured here. Implement log capturing if needed.
-    logs = []
-    return templates.TemplateResponse("index.html", {"request": request, "posts": posts, "logs": logs})
+async def fetch_posts(request: Request, subreddit: str = Form(...), n: int = Form(5)):
+    # Set up in-memory log capture
+    # log_stream = io.StringIO()
+    # stream_handler = logging.StreamHandler(log_stream)
+    # stream_handler.setLevel(logging.INFO)
+    # logger.addHandler(stream_handler)
 
+    # Fetch posts
+    posts: list[dict[str, str]] = fetch_latest_posts(subreddit_name=subreddit, limit=n)
+
+    # Detach handler and extract lines
+    # logger.removeHandler(stream_handler)
+    # logs: list[str] = log_stream.getvalue().strip().splitlines()
+
+    # return templates.TemplateResponse("index.html", context={"request": request, "posts": posts, "logs": logs})
+    return templates.TemplateResponse("index.html", context={"request": request, "posts": posts})
 
 if __name__ == "__main__":
     import uvicorn

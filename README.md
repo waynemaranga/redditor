@@ -18,6 +18,16 @@
 
 3. Install the required packages:
 
+   1. Using `uv`
+
    ```bash
 
    ```
+
+   2. Using `pip`
+
+   ```bash
+
+   ```
+
+4.
