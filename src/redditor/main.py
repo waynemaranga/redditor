@@ -5,6 +5,7 @@ import dotenv
 import logging
 from typing import Any, Optional
 from pathlib import Path
+from pprint import pprint
 
 from praw import Reddit
 from praw.models.reddit.redditor import Redditor
@@ -26,9 +27,7 @@ REDDIT_PASSWORD: str = os.getenv("REDDIT_PASSWORD", "")
 
 
 def create_client() -> Reddit:
-    """
-    Create a Reddit client using the praw library.
-    """
+    """Create a Reddit client using the praw library."""
     try:
         reddit = Reddit(
             # Read-only and OAuth2 access
@@ -52,35 +51,41 @@ def create_client() -> Reddit:
 
 
 def fetch_latest_posts(reddit: Reddit, subreddit_name: str, limit: int = 5) -> list[dict[str, str]]:
-    """
-    Fetch the latest 'limit' posts from the specified subreddit.
-    Returns a list of dictionaries containing post details.
-    """
-    subreddit: Subreddit = reddit.subreddit(subreddit_name)
-    posts: list[Any] = []
-    for submission in subreddit.new(limit=limit):
-        post_info = {
-            "title": submission.title,
-            "author": str(submission.author),
-            "upvotes": submission.score
-        }
-        posts.append(post_info)
-    return posts
+    """Fetch the latest `limit` posts from the specified subreddit. Returns a list of dictionaries containing post details."""
+    try:
+        subreddit: Subreddit = reddit.subreddit(subreddit_name)
+        posts: list[Any] = []
+
+        for submission in subreddit.new(limit=limit):
+            post_info = {
+                "title": submission.title,
+                "author": str(submission.author),
+                "upvotes": submission.score
+                }
+            posts.append(post_info)
+
+        logger.info(f"🟢 Fetched {len(posts)} latest posts from r/{subreddit_name}")
+        return posts
+
+    except Exception as e:
+        logger.error(f"🔴 Failed to fetch posts from r/{subreddit_name}: {str(e)}", exc_info=True)
+        return []
 
 if __name__ == "__main__":
-    # print(DOTENV_FILE.is_file()) # .is_file() implies .exists() # 🧪 check if DOTENV_FILE exists
-    # print(reddit.read_only) # 🧪 test read only access
+    reddit: Reddit = create_client()
+    
+    # pprint(DOTENV_FILE.is_file()) # .is_file() implies .exists() # 🧪 check if DOTENV_FILE exists
+    # pprint(reddit.read_only) # 🧪 test read only access
     # for submission in reddit.subreddit("politics").hot(limit=5):
-    #     print(submission.title)
+    #     pprint(submission.title)
     # subbreddit: Subreddit = reddit.subreddit("learnpython")
-    # print(subbreddit.display_name)
-    # print(reddit.user.me()) 
+    # pprint(subbreddit.display_name)
+    # pprint(reddit.user.me()) 
 
-    client: Reddit = create_client()
     subreddit_name: str = "learnpython"
-    latest_posts: list[dict[str, str]] = fetch_latest_posts(client, subreddit_name)
+    latest_posts: list[dict[str, str]] = fetch_latest_posts(reddit, subreddit_name)
     # logger.info("Latest posts from r/%s:", subreddit_name)
-    print(f"Latest {len(latest_posts)} posts from r/{subreddit_name}: ")
-    [print(i) for i in latest_posts]
+    pprint(f"Latest {len(latest_posts)} posts from r/{subreddit_name}: ")
+    [pprint(i) for i in latest_posts]
 
     print("\n🐬")
