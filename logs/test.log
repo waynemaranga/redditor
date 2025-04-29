@@ -1,0 +1,17 @@
+2025-04-29 23:37:06 - INFO - ⚪ Authenticating Reddit client...
+2025-04-29 23:37:08 - INFO - 🟢 Reddit client authenticated as: ***********
+2025-04-29 23:37:09 - INFO - 🟢 Fetched 5 latest posts from r/learnpython
+2025-04-29 23:43:46 - INFO - ⚪ Authenticating Reddit client...
+2025-04-29 23:43:46 - DEBUG - Fetching: GET https://oauth.reddit.com/api/v1/me at 0000000026.44483
+2025-04-29 23:43:46 - DEBUG - Data: None
+2025-04-29 23:43:46 - DEBUG - Params: {'raw_json': 1}
+2025-04-29 23:43:48 - DEBUG - Response: 200 (1878 bytes) (rst-371:rem-999.0:used-1 ratelimit) at 0000000028.914013
+2025-04-29 23:43:48 - INFO - 🟢 Reddit client authenticated as: ***********
+2025-04-29 23:43:48 - DEBUG - Fetching: GET https://oauth.reddit.com/r/learnpython/new at 0000000028.9184482
+2025-04-29 23:43:48 - DEBUG - Data: None
+2025-04-29 23:43:48 - DEBUG - Params: {'limit': 5, 'raw_json': 1}
+2025-04-29 23:43:49 - DEBUG - Response: 200 (4504 bytes) (rst-370:rem-998.0:used-2 ratelimit) at 0000000029.5284257
+2025-04-29 23:43:49 - INFO - 🟢 Fetched 5 latest posts from r/learnpython
+2025-04-29 23:45:37 - INFO - ⚪ Authenticating Reddit client...
+2025-04-29 23:45:39 - INFO - 🟢 Reddit client authenticated as: ***********
+2025-04-29 23:45:40 - INFO - 🟢 Fetched 5 latest posts from r/learnpython
