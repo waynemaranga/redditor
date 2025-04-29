@@ -95,7 +95,7 @@ def create_client() -> Reddit:
     raise RuntimeError("Reddit client authentication failed.")
 
 # 
-def fetch_latest_posts(reddit: Reddit, subreddit_name: str, limit: int = 5) -> list[dict[str, str]]:
+def fetch_latest_posts(reddit: Reddit = create_client(), subreddit_name: str = "politics", limit: int = 5) -> list[dict[str, str]]:
     """Fetch the latest `limit` posts from the specified subreddit. Returns a list of dictionaries containing post details."""
     attempts = 0
     retries = 3

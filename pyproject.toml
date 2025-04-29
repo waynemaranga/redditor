@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "python-dotenv>=1.1.0",
     "praw>=7.8.1",
+    "fastapi[standard]>=0.115.12",
 ]
 
 [build-system]
