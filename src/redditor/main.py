@@ -1,19 +1,27 @@
 # https://github.com/reddit-archive/reddit/wiki/OAuth2-Quick-Start-Example#first-steps
 # https://praw.readthedocs.io/en/stable/getting_started/authentication.html#authenticating-via-oauth
-import os
-import dotenv
+
+import os # https://www.digitalocean.com/community/tutorials/python-os-module#python-os-module
+import time # https://www.programiz.com/python-programming/time
+import dotenv # https://www.geeksforgeeks.org/using-python-environment-variables-with-python-dotenv/
 import logging # https://docs.python.org/3/howto/logging.html#basic-logging-tutorial 
-from typing import Any, Optional
-from pathlib import Path
-from pprint import pprint
-from datetime import datetime
+from typing import Any, Optional # https://www.digitalocean.com/community/tutorials/python-typing-module
+from pathlib import Path # https://realpython.com/python-pathlib/#path-instantiation-with-pythons-pathlib
+from pprint import pprint # https://realpython.com/python-pretty-print/#working-with-pprint
+from datetime import datetime # https://www.programiz.com/python-programming/datetime
 
 # -- PRAW: https://github.com/praw-dev/praw?tab=readme-ov-file#quickstart | https://praw.readthedocs.io/en/stable/
 from praw import Reddit
 from praw.models.reddit.redditor import Redditor
 from praw.models.reddit.subreddit import Subreddit
+from prawcore.exceptions import (
+    OAuthException, Redirect, RequestException,
+    ResponseException, ServerError, Forbidden,
+    NotFound, TooManyRequests
+    )
 
-# -- Logging Setup
+# --------------------------------------------------------------------------------------------------------------------------
+# --- Logging
 LOG_LEVEL = logging.INFO # logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL
 
 LOG_FILE: Path = Path(__file__).parent.parent.parent / "logs" / f"{datetime.now().strftime('%Y-%m-%d')}.log"
@@ -24,12 +32,12 @@ stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.DEBUG)
 stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s", "%Y-%m-%d %H:%M:%S"))
 logger.addHandler(stream_handler)
-
-# -- Enable DEBUG logging for praw and prawcore to console
 for logger_name in ("praw", "prawcore"):
-    praw_logger = logging.getLogger(logger_name)
+    praw_logger: logging.Logger = logging.getLogger(logger_name)
     praw_logger.setLevel(LOG_LEVEL)
     praw_logger.addHandler(stream_handler)
+
+# --------------------------------------------------------------------------------------------------------------------------
 
 # -- Environment Variables
 DOTENV_FILE: Path = Path(__file__).parent.parent.parent / ".env" 
@@ -41,52 +49,94 @@ REDDIT_USER_AGENT: str = os.getenv("REDDIT_USER_AGENT", "")
 REDDIT_USERNAME: str = os.getenv("REDDIT_USERNAME", "")
 REDDIT_PASSWORD: str = os.getenv("REDDIT_PASSWORD", "")
 
+# --------------------------------------------------------------------------------------------------------------------------
+
 # 
 def create_client() -> Reddit:
     """Create a Reddit client using the `praw` library."""
-    try:
-        reddit = Reddit(
-            # Read-only
-            client_id=REDDIT_CLIENT_ID,
-            client_secret=REDDIT_CLIENT_SECRET,
-            user_agent=REDDIT_USER_AGENT,
-            # OAuth2 
-            username=REDDIT_USERNAME,
-            password=REDDIT_PASSWORD
-        )
+    attempts = 0
+    retries = 3
+    delay = 2  # seconds
 
-        #  Validate credentials
-        logger.info("⚪ Authenticating Reddit client...")
-        _: Optional[Redditor] = reddit.user.me()  # 🧪 raises if credentials are invalid
-        logger.info("🟢 Reddit client authenticated as: %s", _.name) # type: ignore
+    while attempts < retries:
+        try:
+            reddit = Reddit(
+                client_id=REDDIT_CLIENT_ID,
+                client_secret=REDDIT_CLIENT_SECRET,
+                user_agent=REDDIT_USER_AGENT,
+                username=REDDIT_USERNAME,
+                password=REDDIT_PASSWORD
+            )
 
-        return reddit
+            logger.info("⚪ Authenticating Reddit client...")
+            user: Optional[Redditor] = reddit.user.me()  # Raises on failure
+            logger.info(f"🟢 Reddit client authenticated as: {user.name}")  # type: ignore
 
-    except Exception as e:
-        logger.error("🔴 Failed to create Reddit client: %s", str(e), exc_info=True)
-        raise
+            return reddit
+
+        except OAuthException as e:
+            logger.error(f"🔴 Invalid credentials: {e}", exc_info=True)
+            break  # Don't retry on bad creds
+
+        except (RequestException, ResponseException, ServerError, TooManyRequests) as e:
+            logger.warning(f"🟡 Network/API error on attempt {attempts+1}/{retries}: {str(e)}")
+            time.sleep(delay * (attempts + 1))
+            attempts += 1
+
+        except Forbidden as e: # type: ignore
+            logger.error("🔴 Access forbidden when authenticating: %s", str(e), exc_info=True)
+            break
+
+        except Exception as e:
+            logger.error("🔴 Unexpected error during client creation: %s", str(e), exc_info=True)
+            break
+
+    logger.error("🔴 Failed to authenticate Reddit client after %d attempts.", retries)
+    raise RuntimeError("Reddit client authentication failed.")
 
 # 
 def fetch_latest_posts(reddit: Reddit, subreddit_name: str, limit: int = 5) -> list[dict[str, str]]:
     """Fetch the latest `limit` posts from the specified subreddit. Returns a list of dictionaries containing post details."""
-    try:
-        subreddit: Subreddit = reddit.subreddit(subreddit_name)
-        posts: list[Any] = []
+    attempts = 0
+    retries = 3
+    delay = 2  # seconds
 
-        for submission in subreddit.new(limit=limit):
-            post_info: dict[str, Any] = {
-                "title": submission.title,
-                "author": str(submission.author),
-                "upvotes": submission.score
-                }
-            posts.append(post_info)
+    while attempts < retries:
+        try:
+            subreddit: Subreddit = reddit.subreddit(subreddit_name)
+            subreddit._fetch()  # Detect redirect (invalid subreddit name), Raises prawcore.exceptions.Redirect if invalid
 
-        logger.info(f"🟢 Fetched {len(posts)} latest posts from r/{subreddit_name}")
-        return posts
+            logger.info(f"⚪ Fetching latest posts from r/{subreddit_name}...")
+            posts: list[dict[str, str]] = []
+            for submission in subreddit.new(limit=limit):
+                posts.append({
+                    "title": submission.title,
+                    "author": str(submission.author),
+                    "upvotes": submission.score
+                })
 
-    except Exception as e:
-        logger.error(f"🔴 Failed to fetch posts from r/{subreddit_name}: {str(e)}", exc_info=True)
-        return []
+            logger.info(f"🟢 Fetched {len(posts)} latest posts from r/{subreddit_name}")
+            return posts
+
+        except Redirect:
+            logger.error(f"🔴 Subreddit r/{subreddit_name} does not exist (redirected).")
+            break
+
+        except (RequestException, ResponseException, ServerError, TooManyRequests) as e:
+            logger.warning(f"🟡 Network/API error on attempt {attempts + 1}/{retries}: {e}")
+            time.sleep(delay * (attempts + 1))
+            attempts += 1
+
+        except (Forbidden, NotFound) as e: # type: ignore
+            logger.error(f"🔴 Access issue: r/{subreddit_name} - {e}")
+            break
+
+        except Exception as e:
+            logger.error(f"🔴 Unexpected error fetching posts: {e}", exc_info=True)
+            break
+
+    logger.error(f"🔴 Failed to fetch posts from r/{subreddit_name} after {retries} retries.")
+    return []
 
 
 if __name__ == "__main__":
@@ -101,7 +151,7 @@ if __name__ == "__main__":
     # pprint(subbreddit.display_name)
     # pprint(reddit.user.me()) 
 
-    subreddit_name: str = "learnpython"
+    subreddit_name: str = "politics"
     latest_posts: list[dict[str, str]] = fetch_latest_posts(reddit, subreddit_name)
     # logger.info("Latest posts from r/%s:", subreddit_name)
     pprint(f"Latest {len(latest_posts)} posts from r/{subreddit_name}: ")

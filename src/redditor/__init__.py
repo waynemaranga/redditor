@@ -1,2 +1,1 @@
-def hello() -> str:
-    return "Hello from redditor!"
+from .main import create_client, fetch_latest_posts

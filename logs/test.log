@@ -1,17 +1,81 @@
 2025-04-29 23:37:06 - INFO - ⚪ Authenticating Reddit client...
-2025-04-29 23:37:08 - INFO - 🟢 Reddit client authenticated as: ***********
+2025-04-29 23:37:08 - INFO - 🟢 Reddit client authenticated as: ************
 2025-04-29 23:37:09 - INFO - 🟢 Fetched 5 latest posts from r/learnpython
 2025-04-29 23:43:46 - INFO - ⚪ Authenticating Reddit client...
-2025-04-29 23:43:46 - DEBUG - Fetching: GET https://oauth.reddit.com/api/v1/me at 0000000026.44483
+2025-04-29 23:43:46 - DEBUG - Fetching: GET https://oauth.reddit.com/api/v1/me at 0000000426.44483
 2025-04-29 23:43:46 - DEBUG - Data: None
 2025-04-29 23:43:46 - DEBUG - Params: {'raw_json': 1}
-2025-04-29 23:43:48 - DEBUG - Response: 200 (1878 bytes) (rst-371:rem-999.0:used-1 ratelimit) at 0000000028.914013
-2025-04-29 23:43:48 - INFO - 🟢 Reddit client authenticated as: ***********
-2025-04-29 23:43:48 - DEBUG - Fetching: GET https://oauth.reddit.com/r/learnpython/new at 0000000028.9184482
+2025-04-29 23:43:48 - DEBUG - Response: 200 (1878 bytes) (rst-371:rem-999.0:used-1 ratelimit) at 0000000428.914013
+2025-04-29 23:43:48 - INFO - 🟢 Reddit client authenticated as: ************
+2025-04-29 23:43:48 - DEBUG - Fetching: GET https://oauth.reddit.com/r/learnpython/new at 0000000428.9184482
 2025-04-29 23:43:48 - DEBUG - Data: None
 2025-04-29 23:43:48 - DEBUG - Params: {'limit': 5, 'raw_json': 1}
-2025-04-29 23:43:49 - DEBUG - Response: 200 (4504 bytes) (rst-370:rem-998.0:used-2 ratelimit) at 0000000029.5284257
+2025-04-29 23:43:49 - DEBUG - Response: 200 (4504 bytes) (rst-370:rem-998.0:used-2 ratelimit) at 0000000429.5284257
 2025-04-29 23:43:49 - INFO - 🟢 Fetched 5 latest posts from r/learnpython
 2025-04-29 23:45:37 - INFO - ⚪ Authenticating Reddit client...
-2025-04-29 23:45:39 - INFO - 🟢 Reddit client authenticated as: ***********
+2025-04-29 23:45:39 - INFO - 🟢 Reddit client authenticated as: ************
 2025-04-29 23:45:40 - INFO - 🟢 Fetched 5 latest posts from r/learnpython
+2025-04-29 23:57:36 - INFO - ⚪ Authenticating Reddit client...
+2025-04-29 23:57:39 - INFO - 🟢 Reddit client authenticated as: ************
+2025-04-29 23:57:40 - INFO - 🟢 Fetched 5 latest posts from r/learnpython
+2025-04-29 23:58:01 - INFO - ⚪ Authenticating Reddit client...
+2025-04-29 23:58:04 - INFO - 🟢 Reddit client authenticated as: ************
+2025-04-29 23:58:04 - WARNING - 🟡 Network/API error on attempt 1/3: Redirect to /subreddits/search
+2025-04-29 23:58:07 - WARNING - 🟡 Network/API error on attempt 2/3: Redirect to /subreddits/search
+2025-04-29 23:58:11 - WARNING - 🟡 Network/API error on attempt 3/3: Redirect to /subreddits/search
+2025-04-29 23:58:17 - WARNING - 🟡 Network/API error on attempt 4/3: Redirect to /subreddits/search
+2025-04-29 23:58:25 - ERROR - 🔴 Failed to fetch posts from r/learnpyhon after 3 retries.
+2025-04-30 00:00:04 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:00:07 - INFO - 🟢 Reddit client authenticated as: ************
+2025-04-30 00:00:07 - ERROR - 🔴 Subreddit r/learnpyhon does not exist (redirected).
+2025-04-30 00:00:07 - ERROR - 🔴 Failed to fetch posts from r/learnpyhon after 3 retries.
+2025-04-30 00:01:13 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:01:14 - ERROR - 🔴 Failed to create Reddit client: received 401 HTTP response2025-04-30 00:03:38 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:03:38 - WARNING - 🟡 Network/API error on attempt 1/3: received 401 HTTP response
+2025-04-30 00:03:40 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:03:41 - WARNING - 🟡 Network/API error on attempt 2/3: received 401 HTTP response
+2025-04-30 00:03:45 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:03:46 - WARNING - 🟡 Network/API error on attempt 3/3: received 401 HTTP response
+2025-04-30 00:03:52 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:03:52 - WARNING - 🟡 Network/API error on attempt 4/3: received 401 HTTP response
+2025-04-30 00:04:00 - ERROR - 🔴 Failed to authenticate Reddit client after 3 attempts.
+2025-04-30 00:22:31 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:22:31 - WARNING - 🟡 Network/API error on attempt 1/3: received 401 HTTP response
+2025-04-30 00:22:33 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:22:34 - WARNING - 🟡 Network/API error on attempt 2/3: received 401 HTTP response
+2025-04-30 00:22:38 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:22:39 - WARNING - 🟡 Network/API error on attempt 3/3: received 401 HTTP response
+2025-04-30 00:22:45 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:22:46 - WARNING - 🟡 Network/API error on attempt 4/3: received 401 HTTP response
+2025-04-30 00:22:54 - ERROR - 🔴 Failed to authenticate Reddit client after 3 attempts.
+2025-04-30 00:24:17 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:24:18 - WARNING - 🟡 Network/API error on attempt 1/3: received 401 HTTP response
+2025-04-30 00:24:20 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:24:20 - WARNING - 🟡 Network/API error on attempt 2/3: received 401 HTTP response
+2025-04-30 00:24:24 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:24:26 - WARNING - 🟡 Network/API error on attempt 3/3: received 401 HTTP response
+2025-04-30 00:24:32 - ERROR - 🔴 Failed to authenticate Reddit client after 3 attempts.
+2025-04-30 00:24:41 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:24:43 - INFO - 🟢 Reddit client authenticated as: **********
+2025-04-30 00:24:44 - ERROR - 🔴 Subreddit r/learnpyhon does not exist (redirected).
+2025-04-30 00:24:44 - ERROR - 🔴 Failed to fetch posts from r/learnpyhon after 3 retries.
+2025-04-30 00:25:16 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:25:18 - INFO - 🟢 Reddit client authenticated as: **********
+2025-04-30 00:25:19 - INFO - ⚪ Fetching latest posts from r/learnpython...
+2025-04-30 00:25:19 - INFO - 🟢 Fetched 5 latest posts from r/learnpython
+2025-04-30 00:25:47 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:25:49 - INFO - 🟢 Reddit client authenticated as: **********
+2025-04-30 00:25:49 - WARNING - 🟡 Network/API error on attempt 1/3: received 403 HTTP response
+2025-04-30 00:25:52 - WARNING - 🟡 Network/API error on attempt 2/3: received 403 HTTP response
+2025-04-30 00:25:56 - WARNING - 🟡 Network/API error on attempt 3/3: received 403 HTTP response
+2025-04-30 00:26:02 - ERROR - 🔴 Failed to fetch posts from r/aita after 3 retries.
+2025-04-30 00:26:11 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:26:13 - INFO - 🟢 Reddit client authenticated as: **********
+2025-04-30 00:26:14 - WARNING - 🟡 Network/API error on attempt 1/3: received 403 HTTP response
+2025-04-30 00:26:16 - WARNING - 🟡 Network/API error on attempt 2/3: received 403 HTTP response
+2025-04-30 00:26:21 - WARNING - 🟡 Network/API error on attempt 3/3: received 403 HTTP response
+2025-04-30 00:26:27 - ERROR - 🔴 Failed to fetch posts from r/AITA after 3 retries.
+2025-04-30 00:26:37 - INFO - ⚪ Authenticating Reddit client...
+2025-04-30 00:26:39 - INFO - 🟢 Reddit client authenticated as: **********
+2025-04-30 00:26:40 - INFO - ⚪ Fetching latest posts from r/politics...
+2025-04-30 00:26:40 - INFO - 🟢 Fetched 5 latest posts from r/politics
