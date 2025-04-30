@@ -1,9 +1,7 @@
-"""Reddit Automation with PRAW"""
+# https://github.com/reddit-archive/reddit/wiki/OAuth2-Quick-Start-Example#first-steps
+# https://praw.readthedocs.io/en/stable/getting_started/authentication.html#authenticating-via-oauth
 
-# OAuth2 Quickstart: https://github.com/reddit-archive/reddit/wiki/OAuth2-Quick-Start-Example#first-steps
-# Authentication: https://praw.readthedocs.io/en/stable/getting_started/authentication.html#authenticating-via-oauth
-
-# -- Imports, with help links
+import io
 import os # https://www.digitalocean.com/community/tutorials/python-os-module#python-os-module
 import time # https://www.programiz.com/python-programming/time
 import dotenv # https://www.geeksforgeeks.org/using-python-environment-variables-with-python-dotenv/
@@ -22,12 +20,20 @@ from prawcore.exceptions import (
     ResponseException, ServerError, Forbidden,
     NotFound, TooManyRequests
     )
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Form, HTTPException, Request
+from fastapi.datastructures import FormData
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from starlette.templating import _TemplateResponse as TemplateResponse
 
 # --------------------------------------------------------------------------------------------------------------------------
 # --- Logging
 LOG_LEVEL = logging.INFO # logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL
 
-LOG_FILE: Path = Path(__file__).parent.parent.parent / "logs" / f"{datetime.now().strftime('%Y-%m-%d')}.log"
+LOG_FILE: Path = Path(__file__).parent / "logs" / f"{datetime.now().strftime('%Y-%m-%d')}.log"
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)  # Ensure the logs directory exists
 logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL, encoding='utf-8', format="%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 logger: logging.Logger = logging.getLogger(__name__)
@@ -43,7 +49,7 @@ for logger_name in ("praw", "prawcore"):
 # --------------------------------------------------------------------------------------------------------------------------
 
 # -- Environment Variables
-DOTENV_FILE: Path = Path(__file__).parent.parent.parent / ".env" 
+DOTENV_FILE: Path = Path(__file__).parent / ".env" 
 dotenv.load_dotenv(DOTENV_FILE, override=True) # Load environment variables from .env file
 
 REDDIT_CLIENT_ID: str = os.getenv("REDDIT_CLIENT_ID", "")
@@ -54,12 +60,11 @@ REDDIT_PASSWORD: str = os.getenv("REDDIT_PASSWORD", "")
 
 # --------------------------------------------------------------------------------------------------------------------------
 
-# Reddit Client, via PRAW 
+# 
 def create_client() -> Reddit:
     """Create a Reddit client using the `praw` library."""
     attempts = 0
-
-    retries = 3 # Set the number of retries
+    retries = 3
     delay = 2  # seconds
 
     while attempts < retries:
@@ -98,7 +103,7 @@ def create_client() -> Reddit:
     logger.error("🔴 Failed to authenticate Reddit client after %d attempts.", retries)
     raise RuntimeError("Reddit client authentication failed.")
 
-# PRAW API Rate Limits: https://praw.readthedocs.io/en/stable/getting_started/rate_limits.html
+# 
 def fetch_latest_posts(reddit: Reddit = create_client(), subreddit_name: str = "politics", limit: int = 5) -> list[dict[str, str]]:
     """Fetch the latest `limit` posts from the specified subreddit. Returns a list of dictionaries containing post details."""
     attempts = 0
@@ -142,6 +147,50 @@ def fetch_latest_posts(reddit: Reddit = create_client(), subreddit_name: str = "
     logger.error(f"🔴 Failed to fetch posts from r/{subreddit_name} after {retries} retries.")
     return []
 
+# -- Lifecycle events
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan event handler for the FastAPI app."""
+    logger.info("🛫 Starting up...")
+    yield
+    logger.info("🛬 Shutting down...")
+
+app = FastAPI(title="Redditor Demo", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for CORS
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
+
+# -- Static files and templates
+app.mount("/static", StaticFiles(directory="src/redditor/server/static"), name="static")
+templates = Jinja2Templates(directory="src/redditor/server/templates")
+
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request) -> TemplateResponse:
+    return templates.TemplateResponse("index.html", {"request": request, "posts": []})
+
+@app.post("/fetch_posts/", response_class=HTMLResponse)
+async def fetch_posts(request: Request, subreddit: str = Form(...), n: int = Form(5)):
+    # Set up in-memory log capture
+    # log_stream = io.StringIO()
+    # stream_handler = logging.StreamHandler(log_stream)
+    # stream_handler.setLevel(logging.INFO)
+    # logger.addHandler(stream_handler)
+
+    # Fetch posts
+    posts: list[dict[str, str]] = fetch_latest_posts(subreddit_name=subreddit, limit=n)
+
+    # Detach handler and extract lines
+    # logger.removeHandler(stream_handler)
+    # logs: list[str] = log_stream.getvalue().strip().splitlines()
+
+    # return templates.TemplateResponse("index.html", context={"request": request, "posts": posts, "logs": logs})
+    return templates.TemplateResponse("index.html", context={"request": request, "posts": posts})
+
 
 if __name__ == "__main__":
     reddit: Reddit = create_client()
@@ -155,7 +204,7 @@ if __name__ == "__main__":
     # pprint(subbreddit.display_name)
     # pprint(reddit.user.me()) 
 
-    subreddit_name: str = input("Enter subreddit name (default: politics): ") or "politics"
+    subreddit_name: str = "politics"
     latest_posts: list[dict[str, str]] = fetch_latest_posts(reddit, subreddit_name)
     # logger.info("Latest posts from r/%s:", subreddit_name)
     pprint(f"Latest {len(latest_posts)} posts from r/{subreddit_name}: ")
