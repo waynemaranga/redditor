@@ -19,7 +19,8 @@ import sys
 sys.path.append("/app/src")  # If /app/src is your mounted path in Docker
 
 
-from ..main import create_client, fetch_latest_posts
+# from ..main import create_client, fetch_latest_posts  # uncomment to use in Docker
+from redditor.main import create_client, fetch_latest_posts  # uncomment to use in standalone mode
 
 # -- Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")

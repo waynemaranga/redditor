@@ -1,6 +1,9 @@
-# https://github.com/reddit-archive/reddit/wiki/OAuth2-Quick-Start-Example#first-steps
-# https://praw.readthedocs.io/en/stable/getting_started/authentication.html#authenticating-via-oauth
+"""Reddit Automation with PRAW"""
 
+# OAuth2 Quickstart: https://github.com/reddit-archive/reddit/wiki/OAuth2-Quick-Start-Example#first-steps
+# Authentication: https://praw.readthedocs.io/en/stable/getting_started/authentication.html#authenticating-via-oauth
+
+# -- Imports, with help links
 import os # https://www.digitalocean.com/community/tutorials/python-os-module#python-os-module
 import time # https://www.programiz.com/python-programming/time
 import dotenv # https://www.geeksforgeeks.org/using-python-environment-variables-with-python-dotenv/
@@ -51,11 +54,12 @@ REDDIT_PASSWORD: str = os.getenv("REDDIT_PASSWORD", "")
 
 # --------------------------------------------------------------------------------------------------------------------------
 
-# 
+# Reddit Client, via PRAW 
 def create_client() -> Reddit:
     """Create a Reddit client using the `praw` library."""
     attempts = 0
-    retries = 3
+
+    retries = 3 # Set the number of retries
     delay = 2  # seconds
 
     while attempts < retries:
@@ -94,7 +98,7 @@ def create_client() -> Reddit:
     logger.error("🔴 Failed to authenticate Reddit client after %d attempts.", retries)
     raise RuntimeError("Reddit client authentication failed.")
 
-# 
+# PRAW API Rate Limits: https://praw.readthedocs.io/en/stable/getting_started/rate_limits.html
 def fetch_latest_posts(reddit: Reddit = create_client(), subreddit_name: str = "politics", limit: int = 5) -> list[dict[str, str]]:
     """Fetch the latest `limit` posts from the specified subreddit. Returns a list of dictionaries containing post details."""
     attempts = 0
@@ -151,7 +155,7 @@ if __name__ == "__main__":
     # pprint(subbreddit.display_name)
     # pprint(reddit.user.me()) 
 
-    subreddit_name: str = "politics"
+    subreddit_name: str = input("Enter subreddit name (default: politics): ") or "politics"
     latest_posts: list[dict[str, str]] = fetch_latest_posts(reddit, subreddit_name)
     # logger.info("Latest posts from r/%s:", subreddit_name)
     pprint(f"Latest {len(latest_posts)} posts from r/{subreddit_name}: ")
