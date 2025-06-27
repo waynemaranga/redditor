@@ -23,6 +23,8 @@ from prawcore.exceptions import (
     NotFound, TooManyRequests
     )
 
+from redditor.ai import expound_title
+
 # --------------------------------------------------------------------------------------------------------------------------
 # --- Logging
 LOG_LEVEL = logging.INFO # logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL
@@ -116,7 +118,8 @@ def fetch_latest_posts(reddit: Reddit = create_client(), subreddit_name: str = "
                 posts.append({
                     "title": submission.title,
                     "author": str(submission.author),
-                    "upvotes": submission.score
+                    "upvotes": submission.score,
+                    "expounded": expound_title(submission.title) if submission.title else "No title provided",
                 })
 
             logger.info(f"🟢 Fetched {len(posts)} latest posts from r/{subreddit_name}")
